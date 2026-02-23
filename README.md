@@ -11,13 +11,50 @@
   <div>웹 소켓 연결 역시 처음에는 client 딴에서 서버로의 GET 요청이 요구된다. 이 때 <b>'Connection'</b>이나 <b>'Upgrade'</b>라는, 조금 특이한 헤더를 함께 보내는 것이 차이점이다.<br />
   </div>
 
-  '''
-  '''
-  
-  
+  ```
+  GET /chat HTTP/1.1
+Host: www.test.com
+Connection: Upgrade
+Upgrade: websocket
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13
+  ```
+
+  <h4>통신 방법</h4>
+  1. Websocket 클래스를 사용해 웹소켓 객체를 하나 만든다. ws나 wss 프로토콜을 사용하는 서버의 URL을 WebSocket 클래스의 생성자에 넘기면 된다.<br />
+  웹소켓 객체가 만들어졌음은 handshake 과정이 끝나고 웹소켓을 통해 서버와 메세지를 주고받을 수 있는 상태가 되었다는 말이다.<br />
+  (이를 통해 open, message, error, close를 처리할 수 있다.)<br />
+    이벤트 처리 핸들러는 assEventListener 메서드를 통해 설정할 수 있다.
+    
+    ```
+    const socket = new WebSocket("사이트 주소");
+    socket.addEventListener("open", (event) => {console.log("서버와의 연결 진행")});
+    socket.addEventListener("message", (event) => {console.log("서버로부터 받은 메세지: ", event.data);});
+    socket.addEventListener("close", (event) => {console.log("서버와의 연결 종료")});
+    ```
+    
+  코틀린에서의 websocket 예제는 다음과 같겠다(springboot 상정)::
+    
+    ```
+    //data
+    package com.example.websoc.chat.domain
+    data class ChatMessage (
+      var type: MessageType,
+      var content: String?,
+      var sender: String
+    )
+    //type
+    enum class MessageType {
+      CHAT,
+      JOIN,
+      LEAVE
+    }
+    //이후 controller, eventListener 추가
+    ```
 
 
 ---
 <h4>참고 자료</h4>
 - https://medium.com/@ykm7003/android-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EC%96%91%EB%B0%A9%ED%96%A5-%ED%86%B5%EC%8B%A0-about-%EC%9B%B9%EC%86%8C%EC%BC%93-8d5b7f6626ec
 - https://www.daleseo.com/websocket/
+- https://basketdeveloper.tistory.com/entry/Kotlin-Spring-boot-WebSocket-%EC%82%AC%EC%9A%A9%EB%B2%95
